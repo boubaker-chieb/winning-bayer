@@ -17,8 +17,9 @@ namespace WinnerBayer.Services
         /// </summary>
         /// <param name="bayers"></param>
         /// <param name="objectForSale"></param>
+        /// <param name="winner"></param>
         /// <returns>The winning price</returns>
-        int FindWinningPrice(IEnumerable<Bayer> bayers, ObjectForSale objectForSale);
+        int FindWinningPrice(IEnumerable<Bayer> bayers, ObjectForSale objectForSale, Bayer? winner);
     }
 }
 

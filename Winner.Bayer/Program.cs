@@ -1,4 +1,5 @@
-﻿using WinnerBayer.Models;
+﻿using WinnerBayer.Exceptions;
+using WinnerBayer.Models;
 using WinnerBayer.Services;
 
 // TestData1
@@ -106,17 +107,22 @@ ISaleService saleService = new SaleService();
 // Lamda to perform tests
 var PerformTest = (IEnumerable<Bayer> bayers, ObjectForSale objectForSale) =>
 {
+    Bayer? winner = null;
     try
     {
-        var winner = saleService.FindWinner(bayers, objectForSale);
+        winner = saleService.FindWinner(bayers, objectForSale);
         Console.WriteLine("The winner bayer is : {0}", winner.Name);
+    }
+    catch (NoBayerException ex)
+    {
+        Console.WriteLine(ex.Message);
     }
     catch (Exception ex)
     {
         Console.WriteLine(ex.Message);
     }
 
-    var winningPrice = saleService.FindWinningPrice(bayers, objectForSale);
+    var winningPrice = saleService.FindWinningPrice(bayers, objectForSale, winner);
 
     Console.WriteLine("The winning price is {0}", winningPrice);
 };

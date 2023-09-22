@@ -31,35 +31,26 @@ namespace WinnerBayer.Services
             return data.First().bayer;
         }
 
-        public int FindWinningPrice(IEnumerable<Bayer> bayers, ObjectForSale objectForSale)
+        public int FindWinningPrice(IEnumerable<Bayer> bayers, ObjectForSale objectForSale, Bayer? winner)
         {
-            try
-            {
-                var winner = FindWinner(bayers, objectForSale);
-
-                var secondBayer = bayers
-                  .Select((bayer) => new
-                  {
-                      maxBid = bayer.Bids
-                           .Select(bid => bid.Value)
-                           .Where(value => value >= objectForSale.ReservePrice && value < winner.Bids.Max(b => b.Value))
-                           .OrderByDescending(value => value)
-                           .FirstOrDefault(),
-                      bayer
-                  })
-                   .OrderByDescending(x => x.maxBid)
-                   .FirstOrDefault();
-
-                return secondBayer?.maxBid == null || secondBayer?.maxBid == 0 ? objectForSale.ReservePrice : (int)secondBayer?.maxBid;
-            }
-            catch (NoBayerException)
+            if (winner == null)
             {
                 return objectForSale.ReservePrice;
             }
-            catch (Exception)
-            {
-                throw;
-            }
+            var secondBayer = bayers
+              .Select((bayer) => new
+              {
+                  maxBid = bayer.Bids
+                       .Select(bid => bid.Value)
+                       .Where(value => value >= objectForSale.ReservePrice && value < winner.Bids.Max(b => b.Value))
+                       .OrderByDescending(value => value)
+                       .FirstOrDefault(),
+                  bayer
+              })
+               .OrderByDescending(x => x.maxBid)
+               .FirstOrDefault();
+
+            return secondBayer?.maxBid == null || secondBayer?.maxBid == 0 ? objectForSale.ReservePrice : (int)secondBayer?.maxBid;
         }
     }
 }
