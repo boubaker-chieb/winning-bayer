@@ -1,5 +1,4 @@
-﻿using WinnerBayer.Exceptions;
-using WinnerBayer.Models;
+﻿using WinnerBayer.Models;
 using WinnerBayer.Services;
 
 // TestData1
@@ -112,10 +111,6 @@ var PerformTest = (IEnumerable<Bayer> bayers, ObjectForSale objectForSale) =>
     {
         winner = saleService.FindWinner(bayers, objectForSale);
         Console.WriteLine("The winner bayer is : {0}", winner.Name);
-    }
-    catch (NoBayerException ex)
-    {
-        Console.WriteLine(ex.Message);
     }
     catch (Exception ex)
     {
