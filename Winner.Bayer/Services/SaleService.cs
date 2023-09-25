@@ -1,56 +1,44 @@
-﻿using WinnerBayer.Exceptions;
-using WinnerBayer.Models;
+﻿using WinnerBayer.Models;
 namespace WinnerBayer.Services
 {
     public class SaleService : ISaleService
     {
+        public SaleService() {}
 
-        public SaleService() { }
-
-        public Bayer FindWinner(IEnumerable<Bayer> bayers, ObjectForSale objectForSale)
+        public SaleResult SaleObject(ObjectForSale objectForSale, IEnumerable<Bayer> bayers)
         {
 
             var data = bayers
+               .AsParallel()
                .Select((bayer) => new
                {
-                   maxBid = bayer.Bids
+                   MaxBid = bayer.Bids
                         .Select(bid => bid.Value)
                         .Where(value => value >= objectForSale.ReservePrice)
                         .OrderByDescending(value => value)
                         .FirstOrDefault(),
-                   bayer
+                   BayerName = bayer.Name
                })
-               .Where(x => x.maxBid >= objectForSale.ReservePrice)
-               .OrderByDescending(x => x.maxBid);
+               .Where(x => x.MaxBid >= objectForSale.ReservePrice)
+               .OrderByDescending(x => x.MaxBid);
 
             if (!data.Any())
             {
-                throw new NoBayerException("No bayer applies a price");
+                return new SaleResult
+                {
+                    Winner = null,
+                    WinningPrice = objectForSale.ReservePrice
+
+                };
             }
+            var winnerData = data.First();
+            var listData = data.ToList();
+            listData.RemoveAt(0);
+            return new SaleResult {
 
-            return data.First().bayer;
-        }
-
-        public int FindWinningPrice(IEnumerable<Bayer> bayers, ObjectForSale objectForSale, Bayer? winner)
-        {
-            if (winner == null)
-            {
-                return objectForSale.ReservePrice;
-            }
-            var secondBayer = bayers
-              .Select((bayer) => new
-              {
-                  maxBid = bayer.Bids
-                       .Select(bid => bid.Value)
-                       .Where(value => value >= objectForSale.ReservePrice && value < winner.Bids.Max(b => b.Value))
-                       .OrderByDescending(value => value)
-                       .FirstOrDefault(),
-                  bayer
-              })
-               .OrderByDescending(x => x.maxBid)
-               .FirstOrDefault();
-
-            return secondBayer?.maxBid == null || secondBayer?.maxBid == 0 ? objectForSale.ReservePrice : (int)secondBayer?.maxBid;
+                Winner = winnerData.BayerName,
+                WinningPrice = listData.FirstOrDefault()?.MaxBid ?? objectForSale.ReservePrice
+            };
         }
     }
 }

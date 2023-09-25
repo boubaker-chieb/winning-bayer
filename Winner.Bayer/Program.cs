@@ -104,35 +104,33 @@ ObjectForSale objectForSale3 = new ObjectForSale
 // Perform tests
 ISaleService saleService = new SaleService();
 // Lamda to perform tests
-var PerformTest = (IEnumerable<Bayer> bayers, ObjectForSale objectForSale) =>
+var PerformTest = (ObjectForSale objectForSale, IEnumerable<Bayer> bayers) =>
 {
-    Bayer? winner = null;
-    try
+
+    var saleResult = saleService.SaleObject(objectForSale, bayers);
+    if (saleResult.Winner != null)
     {
-        winner = saleService.FindWinner(bayers, objectForSale);
-        Console.WriteLine("The winner bayer is : {0}", winner.Name);
-    }
-    catch (Exception ex)
-    {
-        Console.WriteLine(ex.Message);
+        Console.WriteLine("The winner bayer is : {0}", saleResult.Winner);
     }
 
-    var winningPrice = saleService.FindWinningPrice(bayers, objectForSale, winner);
-
-    Console.WriteLine("The winning price is {0}", winningPrice);
+    else
+    {
+        Console.WriteLine("No bayer applies a price");
+    }
+    Console.WriteLine("The winning price is {0}", saleResult.WinningPrice);
 };
 
 
 // Test with TestData1
 Console.WriteLine("******************** Perform first Test ********************");
-PerformTest(bayers1, objectForSale1);
+PerformTest(objectForSale1, bayers1);
 
 // Test with TestData2
 Console.WriteLine("******************** Perform second Test ********************");
-PerformTest(bayers2, objectForSale2);
+PerformTest(objectForSale2, bayers2);
 
 // Test with TestData2
 Console.WriteLine("******************** Perform third Test ********************");
-PerformTest(bayers3, objectForSale3);
+PerformTest(objectForSale3, bayers3);
 
 Console.ReadKey();
